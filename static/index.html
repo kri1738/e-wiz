@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-WIZ</title>    
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080808;
+      --surface: #0e0e0e;
+      --border: #1e1e1e;
+      --accent: #00ff9d;
+      --accent-dim: #00ff9d22;
+      --text: #c8c8c8;
+      --text-dim: #444;
+      --user-bg: #111;
+      --bot-bg: #0a0a0a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* TOOLBAR */
+    .toolbar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-shadow: 0 0 20px var(--accent);
+    }
+
+    .toolbar-center {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* MAIN LAYOUT */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 16px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-item {
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-dim);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+
+    .sidebar-item:hover, .sidebar-item.active {
+      color: var(--accent);
+      border-color: var(--accent-dim);
+      background: var(--accent-dim);
+    }
+
+    .sidebar-item.active::before {
+      content: '> ';
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    /* CHAT AREA */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-track { background: transparent; }
+    #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .message-row {
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-row:last-child { border-bottom: none; }
+
+    .message-meta {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .message-row.user .message-meta { color: var(--text-dim); }
+    .message-row.bot .message-meta { color: var(--accent); }
+
+    .message-content {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+      max-width: 720px;
+    }
+
+    .message-row.user .message-content { color: #888; }
+
+    /* Empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-dim);
+    }
+
+    .empty-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: 8px;
+      color: #1a1a1a;
+      text-shadow: 0 0 40px #00ff9d11;
+    }
+
+    .empty-sub {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    /* INPUT AREA */
+    .input-area {
+      border-top: 1px solid var(--border);
+      padding: 16px 40px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .input-prefix {
+      color: var(--accent);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    #input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      caret-color: var(--accent);
+    }
+
+    #input::placeholder { color: var(--text-dim); }
+
+    #send {
+      background: transparent;
+      border: 1px solid var(--accent-dim);
+      color: var(--accent);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    #send:hover {
+      background: var(--accent-dim);
+      box-shadow: 0 0 12px var(--accent-dim);
+    }
+
+    /* Thinking indicator */
+    .thinking {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .thinking span {
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: blink 1.2s infinite;
+    }
+
+    .thinking span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="logo">E-WIZ</div>
+    <div class="toolbar-center">NEURAL INTERFACE v1.0</div>
+    <div class="status">
+      <div class="status-dot"></div>
+      ONLINE
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-label">Session</div>
+      <div class="sidebar-item active" onclick="clearChat()">+ New Thread</div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-label">Model</div>
+      <div class="sidebar-item active">llama-3.3-70b</div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-label">System</div>
+      <div class="sidebar-item">Groq API</div>
+      <div class="sidebar-item">Stream: OFF</div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat-area">
+      <div id="messages">
+        <div class="empty-state" id="empty">
+          <div class="empty-logo">E-WIZ</div>
+          <div class="empty-sub">Awaiting input...</div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-prefix">&gt;_</div>
+        <input id="input" type="text" placeholder="Enter query..." autocomplete="off"/>
+        <button id="send">SEND</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let history = [];
+
+    function clearChat() {
+      history = [];
+      document.getElementById('messages').innerHTML = `
+        <div class="empty-state" id="empty">
+          <div class="empty-logo">E-WIZ</div>
+          <div class="empty-sub">Awaiting input...</div>
+        </div>`;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("input");
+      const messages = document.getElementById("messages");
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      // Remove empty state
+      const empty = document.getElementById("empty");
+      if (empty) empty.remove();
+
+      input.value = "";
+
+      // User message
+      messages.innerHTML += `
+        <div class="message-row user">
+          <div class="message-meta">YOU</div>
+          <div class="message-content">${userText}</div>
+        </div>`;
+
+      // Thinking indicator
+      const thinkingId = "thinking-" + Date.now();
+      messages.innerHTML += `
+        <div class="thinking" id="${thinkingId}">
+          <span></span><span></span><span></span>
+        </div>`;
+      messages.scrollTop = messages.scrollHeight;
+
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userText, history: history })
+      });
+
+      const data = await res.json();
+      history.push({ role: "user", content: userText });
+      history.push({ role: "assistant", content: data.reply });
+
+      // Remove thinking
+      document.getElementById(thinkingId)?.remove();
+
+      // Bot message
+      messages.innerHTML += `
+        <div class="message-row bot">
+          <div class="message-meta">E-WIZ</div>
+          <div class="message-content">${data.reply}</div>
+        </div>`;
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    document.getElementById("send").addEventListener("click", sendMessage);
+    document.getElementById("input").addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>

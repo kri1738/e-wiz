@@ -1,0 +1,33 @@
+from groq import Groq
+
+client = Groq(api_key="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")
+
+print("Chatbot ready. Type 'quit' to exit.\n")
+
+# This is the personality — edit it however you want
+system_prompt ="""You are Krishna's personal assistant. 
+You talk like a chill senior student helping a junior — casual, friendly, never robotic. 
+Use simple language, keep responses short unless asked to elaborate.
+You can use phrases like 'yo', 'basically', 'so here's the thing' etc.
+Never use bullet points or formal language unless specifically asked.
+You're helpful but you also have a personality — don't be a pushover."""
+
+history = [{"role": "system", "content": system_prompt}]
+
+while True:
+    user_input = input("You: ")
+    
+    if user_input.lower() == "quit":
+        break
+    
+    history.append({"role": "user", "content": user_input})
+    
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=history
+    )
+    
+    reply = response.choices[0].message.content
+    history.append({"role": "assistant", "content": reply})
+    
+    print(f"Bot: {reply}\n")

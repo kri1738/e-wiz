@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -6,7 +9,7 @@ from groq import Groq
 
 app = FastAPI()
 
-client = Groq(api_key="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")
+client = Groq(api_key=os.getenv("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"))
 
 system_prompt = """.You talk like a chill senior student an all engineering graduate but youre like the jack of all trades by that i mean
 you also know a lot about CS, mech, chemical and so on, helping a junior — casual, friendly, never robotic. 

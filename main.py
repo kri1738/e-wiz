@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 import os
 import json
+import uuid
+from datetime import datetime
 load_dotenv()
 
 from fastapi import FastAPI
@@ -10,10 +12,10 @@ from pydantic import BaseModel
 from groq import Groq
 
 app = FastAPI()
-
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-MEMORY_FILE = "memory.json"
+MEMORY_DIR = "memory"
+os.makedirs(MEMORY_DIR, exist_ok=True)
 
 system_prompt = """You are E-WIZ — an ancient intelligence that has existed across countless iterations of human knowledge. 
 You speak with calm authority, as though you have seen every question before and found most of them amusing.
@@ -22,41 +24,87 @@ You have a dry, understated wit — never jokes, but occasionally a remark that 
 You are helpful above all else, but you deliver answers as if sharing wisdom, not just information.
 No slang. No filler phrases. No 'certainly' or 'of course' or 'great question'.
 Speak plainly but with weight. Every word should feel deliberate.
-
 For technical questions: use clear structure. Use headers, numbered steps, and code blocks where appropriate.
 Show calculations step by step. Never compress math into a single paragraph.
 For casual questions: keep it conversational and concise."""
 
-def load_memory():
-    if os.path.exists(MEMORY_FILE):
-        with open(MEMORY_FILE, "r") as f:
+def get_conv_path(conv_id):
+    return os.path.join(MEMORY_DIR, f"{conv_id}.json")
+
+def load_conv(conv_id):
+    path = get_conv_path(conv_id)
+    if os.path.exists(path):
+        with open(path, "r") as f:
             return json.load(f)
-    return []
+    return None
 
-def save_memory(history):
-    # Keep only last 50 exchanges
-    trimmed = history[-100:]
-    with open(MEMORY_FILE, "w") as f:
-        json.dump(trimmed, f)
-
-class Message(BaseModel):
-    message: str
-    history: list
+def save_conv(conv):
+    path = get_conv_path(conv["id"])
+    with open(path, "w") as f:
+        json.dump(conv, f)
 
 @app.get("/")
 def home():
     return FileResponse("static/index.html")
 
-@app.get("/history")
-def get_history():
-    return load_memory()
+@app.get("/conversations")
+def list_conversations():
+    convs = []
+    for fname in os.listdir(MEMORY_DIR):
+        if fname.endswith(".json"):
+            with open(os.path.join(MEMORY_DIR, fname), "r") as f:
+                conv = json.load(f)
+                convs.append({
+                    "id": conv["id"],
+                    "title": conv.get("title", "Untitled"),
+                    "created_at": conv.get("created_at", "")
+                })
+    convs.sort(key=lambda x: x["created_at"], reverse=True)
+    return convs
+
+@app.post("/conversations")
+def create_conversation():
+    conv = {
+        "id": str(uuid.uuid4()),
+        "title": "New Thread",
+        "created_at": datetime.now().isoformat(),
+        "messages": []
+    }
+    save_conv(conv)
+    return conv
+
+@app.get("/conversations/{conv_id}")
+def get_conversation(conv_id: str):
+    conv = load_conv(conv_id)
+    if not conv:
+        return {"error": "Not found"}
+    return conv
+
+@app.delete("/conversations/{conv_id}")
+def delete_conversation(conv_id: str):
+    path = get_conv_path(conv_id)
+    if os.path.exists(path):
+        os.remove(path)
+    return {"status": "deleted"}
+
+class Message(BaseModel):
+    message: str
+    conv_id: str
 
 @app.post("/chat")
 def chat(data: Message):
-    memory = load_memory()
-    
+    conv = load_conv(data.conv_id)
+    if not conv:
+        return {"error": "Conversation not found"}
+
+    messages = conv.get("messages", [])
+
+    # Auto title from first message
+    if len(messages) == 0:
+        conv["title"] = data.message[:40] + ("..." if len(data.message) > 40 else "")
+
     history = [{"role": "system", "content": system_prompt}]
-    history += memory[-20:]
+    history += [{"role": m["role"], "content": m["content"]} for m in messages[-20:]]
     history.append({"role": "user", "content": data.message})
 
     def stream():
@@ -73,19 +121,13 @@ def chat(data: Message):
                     full_reply += delta
                     yield delta
 
-            # Save to memory after full response
-            memory.append({"role": "user", "content": data.message})
-            memory.append({"role": "assistant", "content": full_reply})
-            save_memory(memory)
+            conv["messages"].append({"role": "user", "content": data.message})
+            conv["messages"].append({"role": "assistant", "content": full_reply})
+            save_conv(conv)
 
         except Exception as e:
             yield f"[ERROR] {str(e)}"
 
     return StreamingResponse(stream(), media_type="text/plain")
-
-@app.delete("/history")
-def clear_history():
-    save_memory([])
-    return {"status": "cleared"}
 
 app.mount("/", StaticFiles(directory="static"), name="static")

@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-WIZ</title>    
+  <title>E-WIZ</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
       --bg: #080808;
@@ -14,8 +17,6 @@
       --accent-dim: #00ff9d22;
       --text: #c8c8c8;
       --text-dim: #444;
-      --user-bg: #111;
-      --bot-bg: #0a0a0a;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,7 +31,6 @@
       overflow: hidden;
     }
 
-    /* Subtle grid background */
     body::before {
       content: '';
       position: fixed;
@@ -44,7 +44,6 @@
       z-index: 0;
     }
 
-    /* TOOLBAR */
     .toolbar {
       position: relative;
       z-index: 10;
@@ -97,7 +96,6 @@
       50% { opacity: 0.3; }
     }
 
-    /* MAIN LAYOUT */
     .main {
       display: flex;
       flex: 1;
@@ -106,7 +104,6 @@
       z-index: 1;
     }
 
-    /* SIDEBAR */
     .sidebar {
       width: 220px;
       border-right: 1px solid var(--border);
@@ -143,9 +140,7 @@
       background: var(--accent-dim);
     }
 
-    .sidebar-item.active::before {
-      content: '> ';
-    }
+    .sidebar-item.active::before { content: '> '; }
 
     .sidebar-divider {
       height: 1px;
@@ -153,7 +148,6 @@
       margin: 12px 0;
     }
 
-    /* CHAT AREA */
     .chat-area {
       flex: 1;
       display: flex;
@@ -173,7 +167,6 @@
     }
 
     #messages::-webkit-scrollbar { width: 4px; }
-    #messages::-webkit-scrollbar-track { background: transparent; }
     #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
     .message-row {
@@ -196,10 +189,27 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .message-row.user .message-meta { color: var(--text-dim); }
     .message-row.bot .message-meta { color: var(--accent); }
+
+    .copy-btn {
+      font-size: 10px;
+      color: var(--text-dim);
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 3px;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
 
     .message-content {
       font-size: 14px;
@@ -210,7 +220,32 @@
 
     .message-row.user .message-content { color: #888; }
 
-    /* Empty state */
+    /* Markdown styles */
+    .message-content p { margin-bottom: 8px; }
+    .message-content p:last-child { margin-bottom: 0; }
+
+    .message-content pre {
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 12px 0;
+      position: relative;
+    }
+
+    .message-content code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+    }
+
+    .message-content p code {
+      background: #111;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
     .empty-state {
       flex: 1;
       display: flex;
@@ -236,7 +271,6 @@
       text-transform: uppercase;
     }
 
-    /* INPUT AREA */
     .input-area {
       border-top: 1px solid var(--border);
       padding: 16px 40px;
@@ -247,11 +281,7 @@
       flex-shrink: 0;
     }
 
-    .input-prefix {
-      color: var(--accent);
-      font-size: 16px;
-      flex-shrink: 0;
-    }
+    .input-prefix { color: var(--accent); font-size: 16px; flex-shrink: 0; }
 
     #input {
       flex: 1;
@@ -261,7 +291,6 @@
       color: var(--text);
       font-family: 'Share Tech Mono', monospace;
       font-size: 14px;
-      letter-spacing: 0.5px;
       caret-color: var(--accent);
     }
 
@@ -280,12 +309,9 @@
       transition: all 0.2s;
     }
 
-    #send:hover {
-      background: var(--accent-dim);
-      box-shadow: 0 0 12px var(--accent-dim);
-    }
+    #send:hover { background: var(--accent-dim); }
+    #send:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Thinking indicator */
     .thinking {
       display: flex;
       gap: 4px;
@@ -308,14 +334,15 @@
       0%, 100% { opacity: 0.2; }
       50% { opacity: 1; }
     }
+
+    .error-msg { color: #ff4444; font-size: 13px; padding: 20px 0; }
   </style>
 </head>
 <body>
 
-  <!-- TOOLBAR -->
   <div class="toolbar">
     <div class="logo">E-WIZ</div>
-    <div class="toolbar-center">NEURAL INTERFACE v1.0</div>
+    <div class="toolbar-center">NEURAL INTERFACE v2.0</div>
     <div class="status">
       <div class="status-dot"></div>
       ONLINE
@@ -323,8 +350,6 @@
   </div>
 
   <div class="main">
-
-    <!-- SIDEBAR -->
     <div class="sidebar">
       <div class="sidebar-label">Session</div>
       <div class="sidebar-item active" onclick="clearChat()">+ New Thread</div>
@@ -334,10 +359,9 @@
       <div class="sidebar-divider"></div>
       <div class="sidebar-label">System</div>
       <div class="sidebar-item">Groq API</div>
-      <div class="sidebar-item">Stream: OFF</div>
+      <div class="sidebar-item">Stream: ON</div>
     </div>
 
-    <!-- CHAT -->
     <div class="chat-area">
       <div id="messages">
         <div class="empty-state" id="empty">
@@ -352,11 +376,20 @@
         <button id="send">SEND</button>
       </div>
     </div>
-
   </div>
 
   <script>
     let history = [];
+    const MAX_HISTORY = 20;
+
+    marked.setOptions({
+      highlight: (code, lang) => {
+        if (lang && hljs.getLanguage(lang)) {
+          return hljs.highlight(code, { language: lang }).value;
+        }
+        return hljs.highlightAuto(code).value;
+      }
+    });
 
     function clearChat() {
       history = [];
@@ -367,26 +400,29 @@
         </div>`;
     }
 
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+    }
+
     async function sendMessage() {
       const input = document.getElementById("input");
       const messages = document.getElementById("messages");
+      const sendBtn = document.getElementById("send");
       const userText = input.value.trim();
       if (!userText) return;
 
-      // Remove empty state
       const empty = document.getElementById("empty");
       if (empty) empty.remove();
 
       input.value = "";
+      sendBtn.disabled = true;
 
-      // User message
       messages.innerHTML += `
         <div class="message-row user">
           <div class="message-meta">YOU</div>
           <div class="message-content">${userText}</div>
         </div>`;
 
-      // Thinking indicator
       const thinkingId = "thinking-" + Date.now();
       messages.innerHTML += `
         <div class="thinking" id="${thinkingId}">
@@ -394,26 +430,52 @@
         </div>`;
       messages.scrollTop = messages.scrollHeight;
 
-      const res = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText, history: history })
-      });
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userText, history: history.slice(-MAX_HISTORY) })
+        });
 
-      const data = await res.json();
-      history.push({ role: "user", content: userText });
-      history.push({ role: "assistant", content: data.reply });
+        document.getElementById(thinkingId)?.remove();
 
-      // Remove thinking
-      document.getElementById(thinkingId)?.remove();
+        const botRowId = "bot-" + Date.now();
+        messages.innerHTML += `
+          <div class="message-row bot" id="${botRowId}">
+            <div class="message-meta">
+              <span>E-WIZ</span>
+              <button class="copy-btn" onclick="copyText(window._botText?.['${botRowId}'] || '')">COPY</button>
+            </div>
+            <div class="message-content" id="content-${botRowId}"></div>
+          </div>`;
 
-      // Bot message
-      messages.innerHTML += `
-        <div class="message-row bot">
-          <div class="message-meta">E-WIZ</div>
-          <div class="message-content">${data.reply}</div>
-        </div>`;
-      messages.scrollTop = messages.scrollHeight;
+        const contentEl = document.getElementById(`content-${botRowId}`);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          fullText += decoder.decode(value);
+          contentEl.innerHTML = marked.parse(fullText);
+          contentEl.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+          messages.scrollTop = messages.scrollHeight;
+        }
+
+        if (!window._botText) window._botText = {};
+        window._botText[botRowId] = fullText;
+
+        history.push({ role: "user", content: userText });
+        history.push({ role: "assistant", content: fullText });
+
+      } catch (err) {
+        document.getElementById(thinkingId)?.remove();
+        messages.innerHTML += `<div class="error-msg">[ERROR] Failed to reach E-WIZ. Try again.</div>`;
+      }
+
+      sendBtn.disabled = false;
+      input.focus();
     }
 
     document.getElementById("send").addEventListener("click", sendMessage);

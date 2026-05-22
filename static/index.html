@@ -6,8 +6,11 @@
   <title>E-WIZ</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
   <style>
     :root {
       --bg: #080808;
@@ -481,6 +484,14 @@
           }
         });
         messages.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+        messages.querySelectorAll('.message-content').forEach(el => {
+  renderMathInElement(el, {
+    delimiters: [
+      {left: "$$", right: "$$", display: true},
+      {left: "$", right: "$", display: false}
+    ]
+  });
+});
         messages.scrollTop = messages.scrollHeight;
       }
 
@@ -571,8 +582,14 @@
           const { done, value } = await reader.read();
           if (done) break;
           fullText += decoder.decode(value);
-          contentEl.innerHTML = marked.parse(fullText);
-          contentEl.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+            contentEl.innerHTML = marked.parse(fullText);
+contentEl.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+renderMathInElement(contentEl, {
+  delimiters: [
+    {left: "$$", right: "$$", display: true},
+    {left: "$", right: "$", display: false}
+  ]
+});
           messages.scrollTop = messages.scrollHeight;
         }
 

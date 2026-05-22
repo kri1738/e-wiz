@@ -391,7 +391,42 @@
       }
     });
 
-    function clearChat() {
+    // Load history on page open
+    async function loadHistory() {
+      const res = await fetch("/history");
+      const data = await res.json();
+      if (data.length === 0) return;
+
+      const messages = document.getElementById("messages");
+      const empty = document.getElementById("empty");
+      if (empty) empty.remove();
+
+      data.forEach(msg => {
+        if (msg.role === "user") {
+          messages.innerHTML += `
+            <div class="message-row user">
+              <div class="message-meta">YOU</div>
+              <div class="message-content">${msg.content}</div>
+            </div>`;
+        } else if (msg.role === "assistant") {
+          const id = "bot-" + Math.random().toString(36).substr(2,9);
+          messages.innerHTML += `
+            <div class="message-row bot">
+              <div class="message-meta">
+                <span>E-WIZ</span>
+                <button class="copy-btn" onclick="copyText('${encodeURIComponent(msg.content)}')">COPY</button>
+              </div>
+              <div class="message-content">${marked.parse(msg.content)}</div>
+            </div>`;
+        }
+      });
+
+      history = data;
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function clearChat() {
+      await fetch("/history", { method: "DELETE" });
       history = [];
       document.getElementById('messages').innerHTML = `
         <div class="empty-state" id="empty">
@@ -401,7 +436,7 @@
     }
 
     function copyText(text) {
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(decodeURIComponent(text));
     }
 
     async function sendMessage() {
@@ -465,7 +500,6 @@
 
         if (!window._botText) window._botText = {};
         window._botText[botRowId] = fullText;
-
         history.push({ role: "user", content: userText });
         history.push({ role: "assistant", content: fullText });
 
@@ -482,6 +516,9 @@
     document.getElementById("input").addEventListener("keypress", e => {
       if (e.key === "Enter") sendMessage();
     });
+
+    // Load history when page opens
+    loadHistory();
   </script>
 </body>
 </html>

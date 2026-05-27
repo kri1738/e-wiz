@@ -3,386 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-WIZ</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <title>E-WIZ — Ancient Intelligence</title>
+  <meta name="description" content="E-WIZ: An ancient intelligence interface for knowledge, code, and wisdom.">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<link rel="stylesheet" href="./styles.css">
-  <!--
-    :root {
-      --bg: #080808;
-      --surface: #0e0e0e;
-      --border: #1e1e1e;
-      --accent: #00ff9d;
-      --accent-dim: #00ff9d22;
-      --text: #c8c8c8;
-      --text-dim: #444;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Share Tech Mono', monospace;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 40px 40px;
-      opacity: 0.3;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .toolbar {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      height: 56px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-      flex-shrink: 0;
-    }
-
-    .logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 20px;
-      letter-spacing: 4px;
-      color: var(--accent);
-      text-shadow: 0 0 20px var(--accent);
-    }
-
-    .toolbar-center {
-      font-size: 11px;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    .main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-      z-index: 1;
-    }
-
-    .sidebar {
-      width: 240px;
-      border-right: 1px solid var(--border);
-      background: var(--surface);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-
-    .sidebar-top {
-      padding: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .new-thread-btn {
-      width: 100%;
-      padding: 10px;
-      background: var(--accent-dim);
-      border: 1px solid var(--accent-dim);
-      color: var(--accent);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: left;
-    }
-
-    .new-thread-btn:hover {
-      background: #00ff9d33;
-      border-color: var(--accent);
-    }
-
-    .sidebar-label {
-      font-size: 10px;
-      color: var(--text-dim);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      padding: 16px 16px 8px;
-    }
-
-    .conv-list {
-      flex: 1;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-
-    .conv-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 16px;
-      cursor: pointer;
-      border-left: 2px solid transparent;
-      transition: all 0.2s;
-      gap: 8px;
-    }
-
-    .conv-item:hover { background: #ffffff08; }
-
-    .conv-item.active {
-      border-left-color: var(--accent);
-      background: var(--accent-dim);
-    }
-
-    .conv-title {
-      font-size: 12px;
-      color: var(--text-dim);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-    }
-
-    .conv-item.active .conv-title { color: var(--accent); }
-
-    .conv-delete {
-      font-size: 14px;
-      color: var(--text-dim);
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.2s;
-      background: none;
-      border: none;
-      padding: 0 4px;
-      flex-shrink: 0;
-    }
-
-    .conv-item:hover .conv-delete { opacity: 1; }
-    .conv-delete:hover { color: #ff4444; }
-
-    .chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    #messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 32px 40px;
-      display: flex;
-      flex-direction: column;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-
-    .message-row {
-      display: flex;
-      flex-direction: column;
-      padding: 20px 0;
-      border-bottom: 1px solid var(--border);
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .message-row:last-child { border-bottom: none; }
-
-    .message-meta {
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .message-row.user .message-meta { color: var(--text-dim); }
-    .message-row.bot .message-meta { color: var(--accent); }
-
-    .copy-btn {
-      font-size: 10px;
-      color: var(--text-dim);
-      cursor: pointer;
-      background: transparent;
-      border: 1px solid var(--border);
-      padding: 2px 8px;
-      border-radius: 3px;
-      letter-spacing: 1px;
-      transition: all 0.2s;
-    }
-
-    .copy-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
-
-    .message-content {
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--text);
-      max-width: 720px;
-    }
-
-    .message-row.user .message-content { color: #888; }
-    .message-content p { margin-bottom: 8px; }
-    .message-content p:last-child { margin-bottom: 0; }
-
-    .message-content pre {
-      background: #0d0d0d;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 16px;
-      overflow-x: auto;
-      margin: 12px 0;
-    }
-
-    .message-content code {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 13px;
-    }
-
-    .message-content p code {
-      background: #111;
-      padding: 2px 6px;
-      border-radius: 3px;
-      color: var(--accent);
-    }
-
-    .empty-state {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      color: var(--text-dim);
-    }
-
-    .empty-logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 48px;
-      font-weight: 800;
-      letter-spacing: 8px;
-      color: #1a1a1a;
-      text-shadow: 0 0 40px #00ff9d11;
-    }
-
-    .empty-sub {
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    .input-area {
-      border-top: 1px solid var(--border);
-      padding: 16px 40px;
-      background: var(--surface);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .input-prefix { color: var(--accent); font-size: 16px; flex-shrink: 0; }
-
-    #input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 14px;
-      caret-color: var(--accent);
-    }
-
-    #input::placeholder { color: var(--text-dim); }
-
-    #send {
-      background: transparent;
-      border: 1px solid var(--accent-dim);
-      color: var(--accent);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 8px 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    #send:hover { background: var(--accent-dim); }
-    #send:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .thinking {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      padding: 20px 0;
-    }
-
-    .thinking span {
-      width: 4px;
-      height: 4px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: blink 1.2s infinite;
-    }
-
-    .thinking span:nth-child(2) { animation-delay: 0.2s; }
-    .thinking span:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes blink {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
-    }
-
-    .error-msg { color: #ff4444; font-size: 13px; padding: 20px 0; }
-  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 
@@ -398,7 +28,7 @@
   <div class="main">
     <div class="sidebar">
       <div class="sidebar-top">
-        <button class="new-thread-btn" onclick="newThread()">+ New Thread</button>
+        <button class="new-thread-btn" id="new-thread-btn" onclick="newThread()">+ New Thread</button>
       </div>
       <div class="sidebar-label">Threads</div>
       <div class="conv-list" id="conv-list"></div>
@@ -407,14 +37,26 @@
     <div class="chat-area">
       <div id="messages">
         <div class="empty-state" id="empty">
+          <div class="empty-glow"></div>
           <div class="empty-logo">E-WIZ</div>
-          <div class="empty-sub">Awaiting input...</div>
+          <div class="empty-sub">Ancient Intelligence • Awaiting Input</div>
+          <div class="empty-divider"></div>
+          <div class="suggestion-chips">
+            <button class="chip" onclick="useSuggestion('Explain quantum entanglement simply')">Explain quantum entanglement</button>
+            <button class="chip" onclick="useSuggestion('Write a Python sorting algorithm')">Write a sorting algorithm</button>
+            <button class="chip" onclick="useSuggestion('What is the nature of consciousness?')">The nature of consciousness</button>
+            <button class="chip" onclick="useSuggestion('Help me debug my code')">Help me debug code</button>
+          </div>
         </div>
       </div>
       <div class="input-area">
-        <div class="input-prefix">&gt;_</div>
-        <input id="input" type="text" placeholder="Enter query..." autocomplete="off"/>
-        <button id="send">SEND</button>
+        <div class="input-container">
+          <div class="input-prefix">&gt;_</div>
+          <textarea id="input" placeholder="Ask E-Wiz anything..." rows="1" autocomplete="off"></textarea>
+          <button id="send" aria-label="Send message">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -422,6 +64,7 @@
   <script>
     let currentConvId = null;
 
+    // Configure marked
     marked.setOptions({
       highlight: (code, lang) => {
         if (lang && hljs.getLanguage(lang)) {
@@ -431,6 +74,126 @@
       }
     });
 
+    // Time formatter
+    function getTimeStr() {
+      const now = new Date();
+      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Auto-grow textarea
+    const inputEl = document.getElementById("input");
+    inputEl.addEventListener("input", () => {
+      inputEl.style.height = "auto";
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 150) + "px";
+    });
+
+    // Empty state HTML template
+    function emptyStateHTML() {
+      return `
+        <div class="empty-state" id="empty">
+          <div class="empty-glow"></div>
+          <div class="empty-logo">E-WIZ</div>
+          <div class="empty-sub">Ancient Intelligence • Awaiting Input</div>
+          <div class="empty-divider"></div>
+          <div class="suggestion-chips">
+            <button class="chip" onclick="useSuggestion('Explain quantum entanglement simply')">Explain quantum entanglement</button>
+            <button class="chip" onclick="useSuggestion('Write a Python sorting algorithm')">Write a sorting algorithm</button>
+            <button class="chip" onclick="useSuggestion('What is the nature of consciousness?')">The nature of consciousness</button>
+            <button class="chip" onclick="useSuggestion('Help me debug my code')">Help me debug code</button>
+          </div>
+        </div>`;
+    }
+
+    // Suggestion chip click
+    function useSuggestion(text) {
+      inputEl.value = text;
+      inputEl.style.height = "auto";
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 150) + "px";
+      inputEl.focus();
+      sendMessage();
+    }
+
+    // Render math in an element
+    function renderMath(el) {
+      renderMathInElement(el, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ]
+      });
+    }
+
+    // Build user message HTML
+    function userMsgHTML(text) {
+      return `
+        <div class="message-row user">
+          <div class="message-header">
+            <div class="avatar user-avatar">Y</div>
+            <div class="message-sender">You</div>
+            <div class="message-time">${getTimeStr()}</div>
+          </div>
+          <div class="message-content">${escapeHtml(text)}</div>
+        </div>`;
+    }
+
+    // Build bot message HTML
+    function botMsgHTML(id) {
+      return `
+        <div class="message-row bot" id="${id}">
+          <div class="message-header">
+            <div class="avatar bot-avatar">E</div>
+            <div class="message-sender">E-Wiz</div>
+            <div class="message-time">${getTimeStr()}</div>
+            <button class="copy-btn" onclick="copyBotMsg('${id}')">COPY</button>
+          </div>
+          <div class="message-content" id="content-${id}"></div>
+        </div>`;
+    }
+
+    // Build bot message for history (already has content)
+    function botMsgHistoryHTML(content) {
+      return `
+        <div class="message-row bot">
+          <div class="message-header">
+            <div class="avatar bot-avatar">E</div>
+            <div class="message-sender">E-Wiz</div>
+          </div>
+          <div class="message-content">${marked.parse(content)}</div>
+        </div>`;
+    }
+
+    // Escape HTML for user messages
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Copy bot message
+    function copyBotMsg(id) {
+      const text = window._botText?.[id] || '';
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector(`#${id} .copy-btn`);
+        if (btn) {
+          btn.textContent = 'COPIED';
+          setTimeout(() => { btn.textContent = 'COPY'; }, 1500);
+        }
+      });
+    }
+
+    // Thinking indicator
+    function thinkingHTML(id) {
+      return `
+        <div class="thinking" id="${id}">
+          <div class="thinking-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="thinking-text">E-Wiz is thinking...</div>
+        </div>`;
+    }
+
+    // ========== CONVERSATION MANAGEMENT ==========
+
     async function loadConvList() {
       const res = await fetch("/conversations");
       const convs = await res.json();
@@ -438,7 +201,7 @@
       list.innerHTML = "";
 
       if (convs.length === 0) {
-        list.innerHTML = `<div style="padding: 16px; font-size: 11px; color: var(--text-dim);">No threads yet.</div>`;
+        list.innerHTML = `<div class="no-threads">No threads yet</div>`;
         return;
       }
 
@@ -446,7 +209,7 @@
         const item = document.createElement("div");
         item.className = "conv-item" + (conv.id === currentConvId ? " active" : "");
         item.innerHTML = `
-          <div class="conv-title">${conv.title}</div>
+          <div class="conv-title">${escapeHtml(conv.title)}</div>
           <button class="conv-delete" onclick="deleteConv('${conv.id}', event)">✕</button>
         `;
         item.addEventListener("click", () => switchConv(conv.id));
@@ -458,45 +221,34 @@
       currentConvId = convId;
       const res = await fetch(`/conversations/${convId}`);
       const conv = await res.json();
-
       const messages = document.getElementById("messages");
       messages.innerHTML = "";
 
       if (conv.messages.length === 0) {
-        messages.innerHTML = `
-          <div class="empty-state" id="empty">
-            <div class="empty-logo">E-WIZ</div>
-            <div class="empty-sub">Awaiting input...</div>
-          </div>`;
+        messages.innerHTML = emptyStateHTML();
       } else {
         conv.messages.forEach(msg => {
           if (msg.role === "user") {
             messages.innerHTML += `
               <div class="message-row user">
-                <div class="message-meta">YOU</div>
-                <div class="message-content">${msg.content}</div>
+                <div class="message-header">
+                  <div class="avatar user-avatar">Y</div>
+                  <div class="message-sender">You</div>
+                </div>
+                <div class="message-content">${escapeHtml(msg.content)}</div>
               </div>`;
           } else {
-            messages.innerHTML += `
-              <div class="message-row bot">
-                <div class="message-meta"><span>E-WIZ</span></div>
-                <div class="message-content">${marked.parse(msg.content)}</div>
-              </div>`;
+            messages.innerHTML += botMsgHistoryHTML(msg.content);
           }
         });
+
+        // Highlight code and render math
         messages.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
-        messages.querySelectorAll('.message-content').forEach(el => {
-  renderMathInElement(el, {
-    delimiters: [
-      {left: "$$", right: "$$", display: true},
-      {left: "$", right: "$", display: false}
-    ]
-  });
-});
+        messages.querySelectorAll('.message-content').forEach(el => renderMath(el));
         messages.scrollTop = messages.scrollHeight;
       }
 
-  
+      await loadConvList();
     }
 
     async function newThread() {
@@ -512,20 +264,17 @@
       await fetch(`/conversations/${convId}`, { method: "DELETE" });
       if (currentConvId === convId) {
         currentConvId = null;
-        document.getElementById("messages").innerHTML = `
-          <div class="empty-state" id="empty">
-            <div class="empty-logo">E-WIZ</div>
-            <div class="empty-sub">Awaiting input...</div>
-          </div>`;
+        document.getElementById("messages").innerHTML = emptyStateHTML();
       }
       loadConvList();
     }
 
+    // ========== SEND MESSAGE ==========
+
     async function sendMessage() {
-      const input = document.getElementById("input");
       const messages = document.getElementById("messages");
       const sendBtn = document.getElementById("send");
-      const userText = input.value.trim();
+      const userText = inputEl.value.trim();
       if (!userText) return;
 
       // Auto create thread if none selected
@@ -536,23 +285,20 @@
         await loadConvList();
       }
 
+      // Remove empty state
       const empty = document.getElementById("empty");
       if (empty) empty.remove();
 
-      input.value = "";
+      inputEl.value = "";
+      inputEl.style.height = "auto";
       sendBtn.disabled = true;
 
-      messages.innerHTML += `
-        <div class="message-row user">
-          <div class="message-meta">YOU</div>
-          <div class="message-content">${userText}</div>
-        </div>`;
+      // Add user message
+      messages.innerHTML += userMsgHTML(userText);
 
+      // Add thinking indicator
       const thinkingId = "thinking-" + Date.now();
-      messages.innerHTML += `
-        <div class="thinking" id="${thinkingId}">
-          <span></span><span></span><span></span>
-        </div>`;
+      messages.innerHTML += thinkingHTML(thinkingId);
       messages.scrollTop = messages.scrollHeight;
 
       try {
@@ -565,14 +311,7 @@
         document.getElementById(thinkingId)?.remove();
 
         const botRowId = "bot-" + Date.now();
-        messages.innerHTML += `
-          <div class="message-row bot" id="${botRowId}">
-            <div class="message-meta">
-              <span>E-WIZ</span>
-              <button class="copy-btn" onclick="navigator.clipboard.writeText(window._botText?.['${botRowId}'] || '')">COPY</button>
-            </div>
-            <div class="message-content" id="content-${botRowId}"></div>
-          </div>`;
+        messages.innerHTML += botMsgHTML(botRowId);
 
         const contentEl = document.getElementById(`content-${botRowId}`);
         const reader = res.body.getReader();
@@ -583,21 +322,16 @@
           const { done, value } = await reader.read();
           if (done) break;
           fullText += decoder.decode(value);
-            contentEl.innerHTML = marked.parse(fullText);
-contentEl.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
-renderMathInElement(contentEl, {
-  delimiters: [
-    {left: "$$", right: "$$", display: true},
-    {left: "$", right: "$", display: false}
-  ]
-});
+          contentEl.innerHTML = marked.parse(fullText);
+          contentEl.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+          renderMath(contentEl);
           messages.scrollTop = messages.scrollHeight;
         }
 
         if (!window._botText) window._botText = {};
         window._botText[botRowId] = fullText;
 
-        // Refresh sidebar to update title
+        // Refresh sidebar title
         loadConvList();
 
       } catch (err) {
@@ -606,12 +340,18 @@ renderMathInElement(contentEl, {
       }
 
       sendBtn.disabled = false;
-      input.focus();
+      inputEl.focus();
     }
 
+    // ========== EVENT LISTENERS ==========
+
     document.getElementById("send").addEventListener("click", sendMessage);
-    document.getElementById("input").addEventListener("keypress", e => {
-      if (e.key === "Enter") sendMessage();
+
+    inputEl.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     });
 
     // Init

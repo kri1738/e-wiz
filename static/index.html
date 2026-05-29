@@ -53,6 +53,10 @@
         <div class="input-container">
           <div class="input-prefix">&gt;_</div>
           <textarea id="input" placeholder="Ask E-Wiz anything..." rows="1" autocomplete="off"></textarea>
+          <input type="file" id="image-input" accept="image/*" style="display: none;">
+          <label for="image-input" class="image-upload-btn" id="image-upload-label" aria-label="Upload image">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v9"/></svg>
+          </label>
           <button id="send" aria-label="Send message">
             <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
@@ -82,9 +86,25 @@
 
     // Auto-grow textarea
     const inputEl = document.getElementById("input");
+    const imageInput = document.getElementById("image-input");
+    let selectedImage = null;
+
     inputEl.addEventListener("input", () => {
       inputEl.style.height = "auto";
       inputEl.style.height = Math.min(inputEl.scrollHeight, 150) + "px";
+    });
+
+    // Image selection handler
+    imageInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          selectedImage = event.target.result;
+          inputEl.focus();
+        };
+        reader.readAsDataURL(file);
+      }
     });
 
     // Empty state HTML template
@@ -302,10 +322,16 @@
       messages.scrollTop = messages.scrollHeight;
 
       try {
+        const payload = { message: userText, conv_id: currentConvId };
+        if (selectedImage) {
+          payload.image = selectedImage;
+          selectedImage = null;
+          imageInput.value = "";
+        }
         const res = await fetch("/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userText, conv_id: currentConvId })
+          body: JSON.stringify(payload)
         });
 
         document.getElementById(thinkingId)?.remove();

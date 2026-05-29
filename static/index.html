@@ -316,10 +316,11 @@
       // Add user message
       messages.innerHTML += userMsgHTML(userText);
       // If an image was selected, show a preview as a user message
+      let imageToSend = selectedImage;
       if (selectedImage) {
         const imgHtml = `<div class="message-row user"><div class="message-header"><div class="avatar user-avatar">Y</div><div class="message-sender">You</div><div class="message-time">${getTimeStr()}</div></div><div class="message-content"><img src="${selectedImage}" class="sent-image" style="max-width:200px; margin-top:5px;" /></div></div>`;
         messages.innerHTML += imgHtml;
-        // Reset image state after sending
+        // Reset image state after rendering preview
         selectedImage = null;
         imageInput.value = "";
       }
@@ -331,10 +332,8 @@
 
       try {
         const payload = { message: userText, conv_id: currentConvId };
-        if (selectedImage) {
-          payload.image = selectedImage;
-          selectedImage = null;
-          imageInput.value = "";
+        if (imageToSend) {
+          payload.image = imageToSend;
         }
         const res = await fetch("/chat", {
           method: "POST",

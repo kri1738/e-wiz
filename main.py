@@ -109,7 +109,7 @@ def chat(data: Message):
         conv["title"] = data.message[:40] + ("..." if len(data.message) > 40 else "")
 
     has_image = any(m.get("role") == "image" for m in messages[-20:]) or bool(data.image)
-    model_name = "llama-3.2-90b-vision-preview" if has_image else "llama-3.3-70b-versatile"
+    model_name = "meta-llama/llama-4-scout-17b-16e-instruct" if has_image else "llama-3.3-70b-versatile"
 
     history = [{"role": "system", "content": system_prompt}]
     

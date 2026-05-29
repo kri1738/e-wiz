@@ -108,21 +108,34 @@ def chat(data: Message):
     if len(messages) == 0:
         conv["title"] = data.message[:40] + ("..." if len(data.message) > 40 else "")
 
-    # Store image if provided
-    if data.image:
-        conv["messages"].append({"role": "image", "content": data.image})
+    has_image = any(m.get("role") == "image" for m in messages[-20:]) or bool(data.image)
+    model_name = "llama-3.2-90b-vision-preview" if has_image else "llama-3.3-70b-versatile"
+
     history = [{"role": "system", "content": system_prompt}]
-    history += [{"role": m["role"], "content": m["content"]} for m in messages[-20:]]
-    # Add image to history for model (role "image")
+    
+    # Process history
+    for m in messages[-20:]:
+        if m["role"] == "image":
+            history.append({
+                "role": "user",
+                "content": [{"type": "image_url", "image_url": {"url": m["content"]}}]
+            })
+        else:
+            history.append({"role": m["role"], "content": m["content"]})
+            
+    # Add current message
     if data.image:
-        history.append({"role": "image", "content": data.image})
-    history.append({"role": "user", "content": data.message})
+        current_content = [{"type": "text", "text": data.message}]
+        current_content.append({"type": "image_url", "image_url": {"url": data.image}})
+        history.append({"role": "user", "content": current_content})
+    else:
+        history.append({"role": "user", "content": data.message})
 
     def stream():
         full_reply = ""
         try:
             response = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model=model_name,
                 messages=history,
                 stream=True
             )
@@ -132,6 +145,8 @@ def chat(data: Message):
                     full_reply += delta
                     yield delta
 
+            if data.image:
+                conv["messages"].append({"role": "image", "content": data.image})
             conv["messages"].append({"role": "user", "content": data.message})
             conv["messages"].append({"role": "assistant", "content": full_reply})
             save_conv(conv)

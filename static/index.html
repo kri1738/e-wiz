@@ -315,6 +315,14 @@
 
       // Add user message
       messages.innerHTML += userMsgHTML(userText);
+      // If an image was selected, show a preview as a user message
+      if (selectedImage) {
+        const imgHtml = `<div class="message-row user"><div class="message-header"><div class="avatar user-avatar">Y</div><div class="message-sender">You</div><div class="message-time">${getTimeStr()}</div></div><div class="message-content"><img src="${selectedImage}" class="sent-image" style="max-width:200px; margin-top:5px;" /></div></div>`;
+        messages.innerHTML += imgHtml;
+        // Reset image state after sending
+        selectedImage = null;
+        imageInput.value = "";
+      }
 
       // Add thinking indicator
       const thinkingId = "thinking-" + Date.now();

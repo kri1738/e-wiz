@@ -170,6 +170,11 @@ body::after {
 
 /* ========== SIDEBAR ========== */
 
+/* Image preview styling */
+.sent-image {
+  border-radius: 4px;
+}
+
 .sidebar {
   width: var(--sidebar-width);
   border-right: 1px solid var(--border);

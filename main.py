@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from groq import Groq
+from typing import Optional
 
 app = FastAPI()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -93,6 +94,7 @@ def delete_conversation(conv_id: str):
 class Message(BaseModel):
     message: str
     conv_id: str
+    image: Optional[str] = None
 
 @app.post("/chat")
 def chat(data: Message):
@@ -106,8 +108,14 @@ def chat(data: Message):
     if len(messages) == 0:
         conv["title"] = data.message[:40] + ("..." if len(data.message) > 40 else "")
 
+    # Store image if provided
+    if data.image:
+        conv["messages"].append({"role": "image", "content": data.image})
     history = [{"role": "system", "content": system_prompt}]
     history += [{"role": m["role"], "content": m["content"]} for m in messages[-20:]]
+    # Add image to history for model (role "image")
+    if data.image:
+        history.append({"role": "image", "content": data.image})
     history.append({"role": "user", "content": data.message})
 
     def stream():
